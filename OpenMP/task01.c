@@ -3,13 +3,10 @@
 
 int main() 
 {
-    int nthreads, tid;
-
-    #pragma omp parallel private(tid, nthreads)
+    #pragma omp parallel
     {
-        tid = omp_get_thread_num();
-        nthreads = omp_get_num_threads();
-        printf("Hello world from thread %d of %d\n", tid, nthreads);
+        printf("Hello world from thread %d of %d\n", 
+            omp_get_thread_num(), omp_get_num_threads());
     }
 
     return 0;
