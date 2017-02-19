@@ -39,7 +39,7 @@ int main()
     printf("Single thread: %.6f\n", end - start);
 
     start = omp_get_wtime();
-    #pragma omp parallel for schedule(auto)
+    #pragma omp parallel for schedule(auto) collapse(2)
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
             res[i] += a[i][j] * v[j];
