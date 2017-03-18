@@ -69,5 +69,7 @@ int main(int argc, char** argv) {
         MPI_Send(&local_max, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
     }
 
+    free(v);
+
     MPI_Finalize();
 }
