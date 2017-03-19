@@ -4,7 +4,7 @@
 #include <time.h>
 
 #define N 10
-#define CHUNK_SIZE 20000
+#define CHUNK_SIZE 200000
 
 int main(int argc, char** argv) {
     srand(time(NULL));
@@ -39,12 +39,11 @@ int main(int argc, char** argv) {
                 in++;
             }
         }
-
-        MPI_Reduce(&in, &total_in, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
+    MPI_Reduce(&in, &total_in, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
     if (rank == 0) {
-        MPI_Reduce(&in, &total_in, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
         pi = 4.0 * total_in / ((CHUNK_SIZE / 2) * (world_size - 1));
 
         printf("%.2f\n", pi);
