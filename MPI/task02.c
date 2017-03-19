@@ -45,12 +45,17 @@ int main(int argc, char** argv) {
 
         print(v, N);
 
-        for (int i = 1; i < world_size - 1; i++) {
-            MPI_Send(&v[i * chunk_size], chunk_size, MPI_INT, i, 0, MPI_COMM_WORLD);
+        for (int i = 1; i < world_size; i++) {
+            if (i < remainder + 1) {
+                MPI_Send(&v[i * chunk_size + 1], chunk_size + 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+            } else {
+                MPI_Send(&v[i * chunk_size], chunk_size, MPI_INT, i, 0, MPI_COMM_WORLD);
+            }
         }
-        MPI_Send(&v[(world_size - 1) * chunk_size], chunk_size + remainder, MPI_INT, world_size - 1, 0, MPI_COMM_WORLD);
+
+        chunk_size += (remainder > 0 ? 1 : 0);
     } else {
-        chunk_size += (rank != world_size - 1 ? 0 : remainder);
+        chunk_size += (rank < remainder + 1 ? 1 : 0);
         MPI_Recv(v, chunk_size, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
     }
 
