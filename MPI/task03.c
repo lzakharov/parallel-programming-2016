@@ -49,5 +49,7 @@ int main(int argc, char** argv) {
         printf("%.2f\n", pi);
     }
 
+    free(points);
+
     MPI_Finalize();
 }
