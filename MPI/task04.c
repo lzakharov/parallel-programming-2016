@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    int chunk_size = N / world_size;
+    int chunk_size = N / world_size + 1;
     int remainder = N % world_size;
 
     if (rank == 0) {
