@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
         print(v, N);
 
         for (int i = 1; i < world_size; i++) {
-            if (i < remainder + 1) {
+            if (i < remainder) {
                 MPI_Send(&v[i * chunk_size + 1], chunk_size + 1, MPI_INT, i, 0, MPI_COMM_WORLD);
             } else {
                 MPI_Send(&v[i * chunk_size], chunk_size, MPI_INT, i, 0, MPI_COMM_WORLD);
