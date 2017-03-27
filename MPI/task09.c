@@ -64,9 +64,16 @@ int main(int argc, char** argv)
     MPI_Scatterv(a, scounts, displs, MPI_INT, chunk, scounts[rank], MPI_INT, 0, MPI_COMM_WORLD);
 
     reverse(chunk, scounts[rank]);
-    reverse(displs, world_size);
+
+    sum = 0;
+    for (int i = world_size - 1; i >= 0; i--) {
+        displs[i] = sum;
+        sum += scounts[i];
+    }
 
     MPI_Gatherv(chunk, scounts[rank], MPI_INT, a, scounts, displs, MPI_INT, 0, MPI_COMM_WORLD);
+
+    printf("Rank %d: count = %d, displs = %d\n", rank, scounts[rank], displs[rank]);
 
     if (rank == 0) {
         printf("Reverted: ");
