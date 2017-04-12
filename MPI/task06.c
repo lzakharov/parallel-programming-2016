@@ -17,20 +17,6 @@ void print(int *a, int rows, int columns) {
     }
 }
 
-int is_maxmin(int *a, int rows, int columns, int index) {
-    int column = index % columns;
-    int min = a[index];
-    int max = min;
-
-    for (int row = 0; row < rows; row++) {
-        if (a[row * columns + column] > max) { 
-            max = a[row * columns + column]; 
-        }
-    }
-
-    return max == min;
-}
-
 int main(int argc, char** argv) {
     srand(time(NULL));
 
@@ -76,38 +62,32 @@ int main(int argc, char** argv) {
 
     MPI_Scatterv(a, scounts, displs, MPI_INT, chunk, scounts[rank], MPI_INT, 0, MPI_COMM_WORLD);
 
+    int max = -1;
+
     for (int i = 0; i < chunk_rows; i++) {
         int min = chunk[i * chunk_columns];
-        int index = 0;
 
         for (int j = 1; j < chunk_columns; j++) {
             if (min > chunk[i * chunk_columns + j]) { 
-                index = i * chunk_columns + j;
-                min = chunk[index];
+                min = chunk[i * chunk_columns + j];
             }
         }
 
-        if (rank == 0) {
-            if (is_maxmin(a, N, M, index) && min > res) {
-                res = min;
-            }
-        } else {
-            index += displs[rank];
-            MPI_Send(&index, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-        }
+        if (min > max) { max = min; }
     }
 
     if (rank == 0) {
-        int index;
+        int res = max;
 
         for (int proc = 1; proc < world_size; proc++) {
-            MPI_Recv(&index, 1, MPI_INT, proc, 0, MPI_COMM_WORLD, &status);
-            if (is_maxmin(a, N, M, index) &&  a[index] > res) {
-                res = a[index];
-            }
+            MPI_Recv(&max, 1, MPI_INT, proc, 0, MPI_COMM_WORLD, &status);
+
+            if (max > res) { res = max; }
         }
 
         printf("maxmin = %d\n", res);
+    } else {
+        MPI_Send(&max, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
     }
 
     free(chunk);

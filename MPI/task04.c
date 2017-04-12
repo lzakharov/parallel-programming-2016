@@ -20,18 +20,19 @@ int main(int argc, char** argv) {
     int world_size, rank;
     int *a = malloc(N * sizeof(int));
     int total_sum = 0;
+    int total_count = 0;
     MPI_Status status;
 
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    int chunk_size = N / world_size + 1;
+    int chunk_size = N / world_size;
     int remainder = N % world_size;
 
     if (rank == 0) {
         for (int i = 0; i < N; i++) {
-            a[i] = rand() % N;
+            a[i] = (rand() % N) - (N / 2);
         }
 
         print(a, N);
@@ -58,14 +59,20 @@ int main(int argc, char** argv) {
     // printf("\n");
 
     sum = 0;
+    int cnt = 0;
     for (int i = 0; i < scounts[rank]; i++) {
-        sum += sub_a[i];
+        if (sub_a[i] > 0) {
+            sum += sub_a[i];
+            cnt++;
+        }
     }
 
+
     MPI_Reduce(&sum, &total_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&cnt, &total_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (rank == 0) {
-        printf("Avg: %.2f\n", (double)total_sum / N);
+        printf("Avg: %.2f\n", (double)total_sum / total_count);
     }
 
     free(a);
